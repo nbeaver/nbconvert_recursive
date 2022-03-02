@@ -3,10 +3,12 @@
 from nbconvert import HTMLExporter
 import sys
 
-filepath = sys.argv[1]
+def main():
+    filepath = sys.argv[1]
+    html_exporter = HTMLExporter(template_name = 'classic')
+    (html, resources) = html_exporter.from_filename(filepath)
+    with open('out.html', 'w') as fp:
+        fp.write(html)
 
-#notebook = nbformat.from_filename(filepath)
-html_exporter = HTMLExporter(template_name = 'classic')
-(html, resources) = html_exporter.from_filename(filepath)
-with open('out.html', 'w') as fp:
-    fp.write(html)
+if __name__ == '__main__':
+    main()
