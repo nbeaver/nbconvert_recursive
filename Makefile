@@ -1,2 +1,2 @@
 run : 
-	./nbconvert_recursive.py example.ipynb
+	./nbconvert_recursive.py example.ipynb example.html
