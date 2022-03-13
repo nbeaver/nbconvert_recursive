@@ -1,1 +1,3 @@
 - [ ] Check that this works with all versions of .ipynb files
+- [ ] Add `--format` flag to choose format
+- [ ] Add `--template` flag to choose template
