@@ -7,23 +7,62 @@ import sys
 import logging
 logger = logging.getLogger(__name__)
 
-def readable_file(path):
-    if not os.path.isfile(path):
+def readable_directory(path):
+    if not os.path.isdir(path):
         raise argparse.ArgumentTypeError(
-            'not an existing file: {}'.format(path))
+            'not an existing directory: {}'.format(path))
     if not os.access(path, os.R_OK):
         raise argparse.ArgumentTypeError(
-            'not a readable file: {}'.format(path))
+            'not a readable directory: {}'.format(path))
     return path
+
+def yield_ipynb(topdir):
+    for dirpath, dirnames, filenames in os.walk(topdir, topdown=True):
+        for filename in filenames:
+            filepath = os.path.join(dirpath, filename)
+            if filename.endswith('.ipynb'):
+                if os.path.isfile(filepath):
+                    logging.debug("path matches: '{}'".format(filepath))
+                    yield filepath
+                else:
+                    logging.error("file does not exist: '{}'".format(filepath))
+            else:
+                logging.debug("Skipping path '{}'".format(filepath))
+                continue
+
+def convert_single_ipynb(filepath):
+    parent_dir, filename = os.path.split(filepath)
+    root, ext = os.path.splitext(filename)
+    # TODO: handle other formats
+    target_filename = root + '.html'
+    target_filepath = os.path.join(parent_dir, target_filename)
+    logging.info("target_filepath = '{}'".format(target_filepath))
+    html_exporter = HTMLExporter(template_name = 'classic')
+    (html_txt, resources) = html_exporter.from_filename(filepath)
+    with open(target_filepath, 'w') as fp:
+        fp.write(html_txt)
+
+def convert_recursive(topdir, no_action=False):
+    for path in yield_ipynb(topdir):
+        if not no_action:
+            convert_single_ipynb(path)
+        else:
+            print(path)
 
 def main():
     parser = argparse.ArgumentParser(
         description='Recursively convert .ipynb files to HTML.')
     # Temporary, these will be directories later.
     parser.add_argument(
-        'input', type=readable_file)
+        'topdir',
+        type=readable_directory,
+        help='directory to look under',
+    )
     parser.add_argument(
-        'output',
+        '-n',
+        '--no-act',
+        action='store_true',
+        help="Don't actually convert anything.",
     )
     parser.add_argument(
         '-v',
@@ -46,10 +85,7 @@ def main():
     logging.basicConfig(level=args.loglevel)
     logger.setLevel(args.loglevel)
 
-    html_exporter = HTMLExporter(template_name = 'classic')
-    (html, resources) = html_exporter.from_filename(args.input)
-    with open(args.output, 'w') as fp:
-        fp.write(html)
+    convert_recursive(args.topdir, no_action=args.no_act)
 
 if __name__ == '__main__':
     main()
