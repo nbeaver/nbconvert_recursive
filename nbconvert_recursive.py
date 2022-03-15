@@ -7,6 +7,17 @@ import sys
 import logging
 logger = logging.getLogger(__name__)
 
+default_skip_dirs = [
+    '.ipynb_checkpoints',
+    '__pycache__',
+    '.DS_Store',
+    '.git',
+    '.hg',
+    '.svn',
+    '.bzr',
+    '_darcs',
+]
+
 def readable_directory(path):
     if not os.path.isdir(path):
         raise argparse.ArgumentTypeError(
@@ -16,8 +27,16 @@ def readable_directory(path):
             'not a readable directory: {}'.format(path))
     return path
 
-def yield_ipynb(topdir):
+def yield_ipynb(topdir, skip_dirs=default_skip_dirs):
+    logging.debug("topdir = '{}'".format(topdir))
+    logging.debug("skip_dirs = '{}'".format(skip_dirs))
     for dirpath, dirnames, filenames in os.walk(topdir, topdown=True):
+        logging.debug("dirpath = '{}'".format(dirpath))
+        logging.debug("dirnames = '{}'".format(dirnames))
+        logging.debug("filenames = '{}'".format(filenames))
+        # Filter out skip_dirs.
+        dirnames[:] = [d for d in dirnames if d not in skip_dirs]
+        logging.debug("dirnames = '{}'".format(dirnames))
         for filename in filenames:
             filepath = os.path.join(dirpath, filename)
             if filename.endswith('.ipynb'):
@@ -42,8 +61,8 @@ def convert_single_ipynb(filepath):
     with open(target_filepath, 'w') as fp:
         fp.write(html_txt)
 
-def convert_recursive(topdir, no_action=False):
-    for path in yield_ipynb(topdir):
+def convert_recursive(topdir, no_action=False, skip_dirs=default_skip_dirs):
+    for path in yield_ipynb(topdir, skip_dirs=skip_dirs):
         if not no_action:
             convert_single_ipynb(path)
         else:
@@ -63,6 +82,12 @@ def main():
         '--no-act',
         action='store_true',
         help="Don't actually convert anything.",
+    )
+    parser.add_argument(
+        '--skip-dirs',
+        nargs='+',
+        default=default_skip_dirs,
+        help="Directories to skip.",
     )
     parser.add_argument(
         '-v',
@@ -85,7 +110,11 @@ def main():
     logging.basicConfig(level=args.loglevel)
     logger.setLevel(args.loglevel)
 
-    convert_recursive(args.topdir, no_action=args.no_act)
+    convert_recursive(
+        args.topdir,
+        no_action=args.no_act,
+        skip_dirs=args.skip_dirs
+    )
 
 if __name__ == '__main__':
     main()
