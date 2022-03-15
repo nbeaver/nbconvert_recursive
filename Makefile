@@ -13,5 +13,9 @@ no-act :
 time :
 	/usr/bin/time --verbose ./nbconvert_recursive.py .
 
+format :
+	# PEP8
+	black --line-length 80 nbconvert_recursive.py
+
 clean :
 	rm -f -- example.html
