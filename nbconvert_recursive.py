@@ -88,7 +88,13 @@ def main():
         '--skip-dirs',
         nargs='+',
         default=default_skip_dirs,
-        help="Directories to skip.",
+        help="Directories to skip, default = {}".format(default_skip_dirs),
+    )
+    parser.add_argument(
+        '--extra-skip-dirs',
+        nargs='+',
+        default=None,
+        help="Additional directories to skip.",
     )
     parser.add_argument(
         '-v',
@@ -111,10 +117,15 @@ def main():
     logging.basicConfig(level=args.loglevel)
     logger.setLevel(args.loglevel)
 
+    if args.extra_skip_dirs is not None:
+        all_skip_dirs = args.skip_dirs + args.extra_skip_dirs
+    else:
+        all_skip_dirs = args.skip_dirs
+
     convert_recursive(
         args.topdir,
         no_action=args.no_act,
-        skip_dirs=args.skip_dirs
+        skip_dirs=all_skip_dirs,
     )
 
 if __name__ == '__main__':
