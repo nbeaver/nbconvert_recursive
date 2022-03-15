@@ -50,7 +50,7 @@ def yield_ipynb(topdir, skip_dirs=default_skip_dirs):
                 logging.debug("Skipping path '{}'".format(filepath))
                 continue
 
-def convert_single_ipynb(ipynb_filepath):
+def convert_single_ipynb(ipynb_filepath, check_mtime=True):
     logging.info("ipynb_filepath = '{}'".format(ipynb_filepath))
     parent_dir, filename = os.path.split(ipynb_filepath)
     root, ext = os.path.splitext(filename)
@@ -58,15 +58,41 @@ def convert_single_ipynb(ipynb_filepath):
     target_filename = root + '.html'
     target_filepath = os.path.join(parent_dir, target_filename)
     logging.info("target_filepath = '{}'".format(target_filepath))
+
+    if check_mtime:
+        mtime_ipynb = os.path.getmtime(ipynb_filepath)
+        logging.debug("mtime_ipynb = '{}'".format(mtime_ipynb))
+        try :
+            mtime_target = os.path.getmtime(target_filepath)
+            target_exists = True
+        except FileNotFoundError:
+            logging.debug("target_filepath does not exist: '{}'".format(target_filepath))
+            target_exists = False
+        if target_exists:
+            logging.debug("mtime_target = '{}'".format(mtime_target))
+            if mtime_ipynb < mtime_target:
+                logging.info("IPYNB older than target, skipping conversion for: '{}'".format(ipynb_filepath))
+                return
+            else:
+                logging.debug("IPYNB newer than target, doing conversion for: '{}'".format(ipynb_filepath))
+    else:
+        logging.debug("skipping timestamp comparison for '{}' and '{}'".format(ipynb_filepath, target_filepath))
+
     html_exporter = HTMLExporter(template_name = 'classic')
     (html_txt, resources) = html_exporter.from_filename(ipynb_filepath)
     with open(target_filepath, 'w') as fp:
         fp.write(html_txt)
 
-def convert_recursive(topdir, no_action=False, skip_dirs=default_skip_dirs):
+def convert_recursive(
+        topdir,
+        no_action=False,
+        skip_dirs=default_skip_dirs,
+        always_convert=False,
+    ):
+    check_mtime = not always_convert
     for path in yield_ipynb(topdir, skip_dirs=skip_dirs):
         if not no_action:
-            convert_single_ipynb(path)
+            convert_single_ipynb(path, check_mtime=check_mtime)
         else:
             print(path)
 
@@ -83,7 +109,14 @@ def main():
         '-n',
         '--no-act',
         action='store_true',
+        default=False,
         help="Don't actually convert anything.",
+    )
+    parser.add_argument(
+        '--always-convert',
+        action='store_true',
+        default=False,
+        help="Always convert, even when newer output exists.",
     )
     parser.add_argument(
         '--skip-dirs',
@@ -127,6 +160,7 @@ def main():
         args.topdir,
         no_action=args.no_act,
         skip_dirs=all_skip_dirs,
+        always_convert = args.always_convert,
     )
 
 if __name__ == '__main__':
