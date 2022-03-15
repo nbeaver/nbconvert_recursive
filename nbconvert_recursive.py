@@ -49,15 +49,16 @@ def yield_ipynb(topdir, skip_dirs=default_skip_dirs):
                 logging.debug("Skipping path '{}'".format(filepath))
                 continue
 
-def convert_single_ipynb(filepath):
-    parent_dir, filename = os.path.split(filepath)
+def convert_single_ipynb(ipynb_filepath):
+    logging.info("ipynb_filepath = '{}'".format(ipynb_filepath))
+    parent_dir, filename = os.path.split(ipynb_filepath)
     root, ext = os.path.splitext(filename)
     # TODO: handle other formats
     target_filename = root + '.html'
     target_filepath = os.path.join(parent_dir, target_filename)
     logging.info("target_filepath = '{}'".format(target_filepath))
     html_exporter = HTMLExporter(template_name = 'classic')
-    (html_txt, resources) = html_exporter.from_filename(filepath)
+    (html_txt, resources) = html_exporter.from_filename(ipynb_filepath)
     with open(target_filepath, 'w') as fp:
         fp.write(html_txt)
 
