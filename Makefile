@@ -10,5 +10,8 @@ debug :
 no-act :
 	./nbconvert_recursive.py --no-act .
 
+time :
+	/usr/bin/time --verbose ./nbconvert_recursive.py .
+
 clean :
 	rm -f -- example.html
