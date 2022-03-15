@@ -1,5 +1,6 @@
 - [ ] Check that this works with all versions of .ipynb files
 - [x] Add `--skip-dirs` for directories to skip, like `.git` or `.ipynb_checkpoints`
 - [ ] Check that it doesn't have to re-run the notebooks to convert them.
+- [ ] Option to check if a file already exists with a newer timestamp and skip conversion
 - [ ] Add `--format` flag to choose format
 - [ ] Add `--template` flag to choose template
