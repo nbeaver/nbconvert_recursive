@@ -1,3 +1,4 @@
 - [ ] Check that this works with all versions of .ipynb files
+- [x] Add `--skip-dirs` for directories to skip, like `.git` or `.ipynb_checkpoints`
 - [ ] Add `--format` flag to choose format
 - [ ] Add `--template` flag to choose template
