@@ -1,4 +1,5 @@
 - [ ] Check that this works with all versions of .ipynb files
 - [x] Add `--skip-dirs` for directories to skip, like `.git` or `.ipynb_checkpoints`
+- [ ] Check that it doesn't have to re-run the notebooks to convert them.
 - [ ] Add `--format` flag to choose format
 - [ ] Add `--template` flag to choose template
