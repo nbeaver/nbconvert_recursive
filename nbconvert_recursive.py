@@ -16,6 +16,7 @@ default_skip_dirs = [
     '.svn',
     '.bzr',
     '_darcs',
+    'Trash',
 ]
 
 def readable_directory(path):
