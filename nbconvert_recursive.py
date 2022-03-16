@@ -100,7 +100,7 @@ def convert_single_ipynb(ipynb_filepath, check_mtime=True):
 
     html_exporter = HTMLExporter(template_name="classic")
     (html_txt, resources) = html_exporter.from_filename(ipynb_filepath)
-    with open(target_filepath, "w") as fp:
+    with open(target_filepath, mode="w", encoding='utf-8') as fp:
         fp.write(html_txt)
 
 
