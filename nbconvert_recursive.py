@@ -110,7 +110,11 @@ def convert_recursive(
     check_mtime = not always_convert
     for path in yield_ipynb(topdir, skip_dirs=skip_dirs):
         if not no_action:
-            convert_single_ipynb(path, check_mtime=check_mtime)
+            try:
+                convert_single_ipynb(path, check_mtime=check_mtime)
+            except:
+                logging.error("path = '{}'".format(path))
+                raise
         else:
             print(path)
 
