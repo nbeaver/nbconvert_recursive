@@ -40,6 +40,12 @@ def yield_ipynb(topdir, skip_dirs=default_skip_dirs):
         logging.debug("dirpath = '{}'".format(dirpath))
         logging.debug("dirnames = '{}'".format(dirnames))
         logging.debug("filenames = '{}'".format(filenames))
+        # Skip if dirpath matches
+        for skip in skip_dirs:
+            if os.path.normpath(dirpath) == os.path.normpath(skip):
+                logging.debug("Skipping dirpath '{}'".format(dirpath))
+                dirnames[:] = []
+                continue
         # Filter out skip_dirs.
         dirnames[:] = [d for d in dirnames if d not in skip_dirs]
         logging.debug("dirnames = '{}'".format(dirnames))
